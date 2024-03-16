@@ -3,7 +3,7 @@
 
 import { automateFormTwo } from './automate-form2';
 
-export async function automateForm() {
+export async function automateForm(data: any) {
   const puppeteer = require('puppeteer');
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
@@ -22,7 +22,6 @@ export async function automateForm() {
     try {
       await page.waitForSelector('#didomi-notice-agree-button', { visible: true, timeout: 5000 });
       await page.click('#didomi-notice-agree-button');
-      console.log("Button clicked successfully.");
     } catch (error) {
       console.error("Error clicking the button:", error);
     }
@@ -34,14 +33,17 @@ export async function automateForm() {
     await page.type('input[name="rel_president.address.street"]', 'Your address Number');
 
     await page.waitForSelector('select[name="deed_nature"]', { timeout: 5000 });
-    await page.select('select[name="deed_nature"]', 'notarial');
+    await page.select('select[name="deed_nature"]', 'private');
 
     try {
       await page.waitForSelector('input#deed_sign_date', { visible: true, timeout: 10000 })
       await page.evaluate(() => {
         const inputField = document.querySelector('input#deed_sign_date');
-        inputField.classList.add('active');
+        if (inputField !== null) {
+          inputField.classList.add('active');
+        }
       });
+
 
       await page.click('input#deed_sign_date');
       await new Promise(resolve => setTimeout(resolve, 2000));
@@ -52,8 +54,11 @@ export async function automateForm() {
 
         await page.evaluate(() => {
           const calendarContainer = document.querySelector('.flatpickr-calendar');
-          calendarContainer.classList.add('open');
+          if (calendarContainer !== null) {
+            calendarContainer.classList.add('open');
+          }
         });
+
 
         calendarVisible = await page.waitForSelector('.flatpickr-calendar', { visible: true, timeout: 10000 })
           .then(() => true)
@@ -63,7 +68,7 @@ export async function automateForm() {
       if (calendarVisible) {
         await page.click('.flatpickr-day.today');
       }
-    } catch (error) {
+    } catch (error: any) {
       return error.message
     }
 
@@ -105,11 +110,12 @@ export async function automateForm() {
     try {
       await page.click('select[name="rel_hq.city"]');
       await page.waitForFunction(() => {
-        const dropdown = document.querySelector('select[name="rel_hq.city"]');
-        return dropdown && dropdown.options.length > 1;
+        const dropdown = document.querySelector('select[name="rel_hq.city"]') as HTMLSelectElement;
+        return dropdown !== null && dropdown.options.length > 1;
       }, { timeout: 10000 });
+
+
       await page.select('select[name="rel_hq.city"]', 'Paris 08');
-      console.log('Selected the city successfully.');
     } catch (error) {
       console.error('Error selecting the city:', error);
     }
@@ -126,30 +132,18 @@ export async function automateForm() {
     await page.waitForSelector('select[name="right_vote_select"]', { timeout: 5000 });
     await page.select('select[name="right_vote_select"]', 'CP');
 
-    try {
-      const valueToSet = 'Une actionnaire, une voix';
-      await page.waitForSelector('textarea[name="default_conditions_of_vote"]', { timeout: 5000 });
-      await page.$eval('textarea[name="default_conditions_of_vote"]', (textarea, value) => {
-        textarea.value = value;
-      }, valueToSet);
-      console.log('Set the value of the textarea successfully.');
-    } catch (error) {
-      console.error('Error setting the value of the textarea:', error);
-    }
+    await page.waitForSelector('textarea[name="default_conditions_of_vote"]', { timeout: 5000 });
+    await page.$eval('textarea[name="default_conditions_of_vote"]', (textarea: any) => {
+      textarea.value = 'Une actionnaire, une voix';
+    });
 
     await page.waitForSelector('select[name="action_type"]', { timeout: 5000 });
     await page.select('select[name="action_type"]', 'TP');
 
-    try {
-      const valueToSet = 'librement cessible avec du président';
-      await page.waitForSelector('textarea[name="agreements"]', { timeout: 5000 });
-      await page.$eval('textarea[name="agreements"]', (textarea, value) => {
-        textarea.value = value;
-      }, valueToSet);
-      console.log('Set the value of the textarea successfully.');
-    } catch (error) {
-      console.error('Error setting the value of the textarea:', error);
-    }
+    await page.waitForSelector('textarea[name="agreements"]', { timeout: 5000 });
+    await page.$eval('textarea[name="agreements"]', (textarea: any) => {
+      textarea.value = 'librement cessible avec du président';
+    });
 
 
     // ================================================================================================================================================================
@@ -162,9 +156,9 @@ export async function automateForm() {
       await page.waitForSelector('input[name="rel_president.title"][value="M"]', { visible: true, timeout: 5000 });
       const radioButton = await page.$('input[name="rel_president.title"][value="M"]');
       if (radioButton) {
-        await radioButton.evaluate(radio => radio.click());
+        await radioButton.evaluate((radio: HTMLElement) => radio.click());
       }
-    } catch (error) {
+    } catch (error: any) {
       return error.message
     }
 
@@ -174,7 +168,6 @@ export async function automateForm() {
     try {
       await page.waitForSelector('select[name="rel_president.society_status"]', { timeout: 5000 });
       await page.select('select[name="rel_president.society_status"]', 'SAS');
-      console.log('Selected "SAS" option successfully.');
     } catch (error) {
       console.error('Error selecting the option:', error);
     }
@@ -185,10 +178,9 @@ export async function automateForm() {
     try {
       const valueToSet = '27 ALLEE du Racou';
       await page.waitForSelector('input[name="rel_president.address.street"]', { timeout: 5000 });
-      await page.$eval('input[name="rel_president.address.street"]', (textarea, value) => {
+      await page.$eval('input[name="rel_president.address.street"]', (textarea: any, value: any) => {
         textarea.value = value;
       }, valueToSet);
-      console.log('Set the value of the textarea successfully.');
     } catch (error) {
       console.error('Error setting the value of the textarea:', error);
     }
@@ -222,8 +214,7 @@ export async function automateForm() {
       await page.waitForSelector('button[type="button"].mdc-button.mdc-button--raised.large:not(.disabled)', { visible: true, timeout: 5000 });
       await page.click('button[type="button"].mdc-button.mdc-button--raised.large:not(.disabled)');
       await page.waitForNavigation();
-      const currentUrl = page.url();
-      const secondPageResponse = await automateFormTwo(page);
+      await automateFormTwo(page);
       return true;
     } catch (error) {
 

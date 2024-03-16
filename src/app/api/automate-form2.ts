@@ -1,6 +1,6 @@
 "use server"
 
-export async function automateFormTwo(page) {
+export async function automateFormTwo(page: any) {
  try {
   await page.waitForSelector('.form-field-line .MuiFormControl-root #civility', { visible: true, timeout: 5000 });
   await page.evaluate(() => {
@@ -8,8 +8,9 @@ export async function automateFormTwo(page) {
    if (civilityRadioGroup) {
     const radioButtonM = civilityRadioGroup.querySelector('input[value="M"]');
     if (radioButtonM) {
-     radioButtonM.click();
+     (radioButtonM as HTMLElement).click();
     }
+
    }
   });
 
@@ -44,7 +45,7 @@ export async function automateFormTwo(page) {
   await page.evaluate(() => {
    const checkbox = document.querySelector('input[name="termsAccepted"]');
    if (checkbox) {
-    checkbox.click()
+    (checkbox as HTMLElement).click()
     checkbox.dispatchEvent(new Event('change'));
    }
   });
@@ -53,7 +54,7 @@ export async function automateFormTwo(page) {
   await page.evaluate(() => {
    const checkbox = document.querySelector('input[name="noCommercialOffers"]');
    if (checkbox) {
-    checkbox.click()
+    (checkbox as HTMLElement).click()
     checkbox.dispatchEvent(new Event('change'));
    }
   });
@@ -65,7 +66,6 @@ export async function automateFormTwo(page) {
     page.click('button[type="button"].mdc-button.mdc-button--raised.large')
    ]);
 
-   console.log("Clicked on the 'Passer au règlement' button and navigated to the payment page successfully.");
   } catch (error) {
    console.error("Error clicking the button or navigating to the payment page:", error);
   }
